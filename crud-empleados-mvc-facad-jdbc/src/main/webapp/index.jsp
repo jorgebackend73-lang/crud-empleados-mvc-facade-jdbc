@@ -43,5 +43,9 @@
    
    <h1>CRUD Empleados MVC Facade JDBC</h1>
 
+	<div>
+		<a href="MainController">Mostrar Listado de Empleados</a>
+	</div>
+
 </body>
 </html>
