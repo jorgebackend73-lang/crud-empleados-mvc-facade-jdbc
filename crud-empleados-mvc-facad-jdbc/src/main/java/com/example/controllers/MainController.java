@@ -7,8 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 
+import com.example.models.Empleado;
 import com.example.services.EmpleadoService;
 import com.example.services.EmpleadosServiceImpl;
 
@@ -40,22 +42,37 @@ public class MainController extends HttpServlet {
 	
 		// Comprobar la conexión con la base de datos a traves de la capa de servicios:
 		
+//		EmpleadoService empleadoService = new EmpleadosServiceImpl();
+//		
+//		boolean connectionResult = false;
+//		
+//		try {
+//			connectionResult = empleadoService.isConnectionOK();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		if (connectionResult = true)
+//			LOG.info("Conexión Exitosa");
+//		else
+//			LOG.info("Error de Conexión");
+		
 		EmpleadoService empleadoService = new EmpleadosServiceImpl();
 		
-		boolean connectionResult = false;
+		List<Empleado> empleados = empleadoService.getEmpleados();
 		
-		try {
-			connectionResult = empleadoService.isConnectionOK();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (connectionResult = true)
-			LOG.info("Conexión Exitosa");
-		else
-			LOG.info("Error de Conexión");
+		// El listado de empleados recogido hay que enviarlo como atributo a la vista JSP,
+		// para que sea renderizado, para que se muestre en la página web vamos.
+		
+		request.setAttribute("empleados", empleados); // ya tiene el listado de empleados aquí.
+		
+		// Hay que procesar el atributo.
+		
+		request.getRequestDispatcher("views/listadoEmpleados.jsp").forward(request, response);
+		// vista de listado de empleados de nuestra carpeta views.
+		
+		
 	}
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

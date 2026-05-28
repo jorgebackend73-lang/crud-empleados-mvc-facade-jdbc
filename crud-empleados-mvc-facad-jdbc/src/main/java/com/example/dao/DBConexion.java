@@ -1,9 +1,12 @@
 package com.example.dao;
 
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -58,6 +61,37 @@ public class DBConexion implements AutoCloseable {
 		this.connection.close();
 		// TODO Auto-generated method stub
 		
+	}
+	
+	// Metodo que recupera todos los egistros de la tabla empleados:
+	// ResultSet es una clase de java.sql que representa el resultado
+	// de una consulta SQL. Es una especie de tabla virtual que contiene
+	// los datos devueltos por la consulta. Permite iterar sobre las filas
+	// y acceder a los valores de cada columna.
+	
+	public ResultSet getEmpleados(Connection connection) {
+		
+		ResultSet rs = null;
+		String query = "SELECT * FROM `empresa-crud-empleados`.empleados"; // hay que
+		// poner el nombre de la base de datos y el nombre de la tabla, separados por un punto.
+		// Entre comillas porque tiene guiones.
+		// lo anterior entre comillas viene del query de workbench.
+		
+		Statement stmt = null; // hay que inicializar el statement a null para poder manejarlo 
+		// en el bloque finally, para cerrarlo.
+		
+		try {
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query); // executeQuery se utiliza para ejecutar consultas SQL
+			// que devuelven un conjunto de resultados, como SELECT. Devuelve un objeto ResultSet 
+			// que contiene los datos obtenidos de la consulta.
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return rs; // para evitar el error de que no devuelve nada, aunque no haga nada el método,
+		// lo dejamos así por ahora.
 	}
 	
 }
