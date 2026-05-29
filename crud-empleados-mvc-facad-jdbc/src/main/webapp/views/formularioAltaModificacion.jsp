@@ -12,7 +12,7 @@
 	<h1>Formulario de Alta/Modificación de Empleado</h1>
 	<fieldset>
 		<legend>Formulario de Gestión de Empleados</legend>
-		<form action="#" method="post">
+		<form action="AltaController" method="post">
 			<div>
 				<label for="nombre">Nombre: </label> 
 				<input type="text" id="nombre" name="nombre" required placeholder="Escriba su nombre.">
