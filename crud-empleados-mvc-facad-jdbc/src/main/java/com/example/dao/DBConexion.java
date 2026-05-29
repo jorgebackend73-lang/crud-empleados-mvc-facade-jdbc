@@ -94,4 +94,22 @@ public class DBConexion implements AutoCloseable {
 		// lo dejamos así por ahora.
 	}
 	
+	// Méto que recupera todos los reistros de la tabla departamentos:
+	public ResultSet getDptos(Connection connection) {
+		
+		ResultSet rs = null;
+		String query = "SELECT * FROM departamentos";
+		Statement stmt = null;
+		
+		try {
+		stmt = connection.createStatement();
+		rs = stmt.executeQuery(query);
+		} catch (SQLException e) {
+			LOG.severe("Error recuperando departamentos y la causa más probable es: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
+	return rs;
+	}
+	
 }

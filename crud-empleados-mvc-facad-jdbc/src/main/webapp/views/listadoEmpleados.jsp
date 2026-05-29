@@ -16,10 +16,17 @@
 	%>
 	<h1>Listado de Empleados</h1>
 	
+	<!-- botón del formulario -->
+	<div>
+		<a href="AltaController" title="Muestra el formulario de alta o modificación de empleados">
+			Alta de Empleado
+		</a>
+	</div>
+	
 	<table>
 		<thead>
 			<tr>
-				<th>nombre</th>
+				<th>Nombre</th>
 				<th>Primer Apellido</th>
 				<th>Segundo Apellido</th>
 				<th>Fecha de Alta</th>
