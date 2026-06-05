@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,6 +18,8 @@ import com.example.models.Empleado;
 import com.example.models.Genero;
 import com.example.services.DepartamentoService;
 import com.example.services.DepartamentoServiceImpl;
+import com.example.services.EmpleadoService;
+import com.example.services.EmpleadosServiceImpl;
 
 /**
  * Servlet implementation class AltaController
@@ -77,6 +80,7 @@ public class AltaController extends HttpServlet {
 		// Hay que tener en cuenta que correos y teléfonos no son requeridos.
 		
 		List<String> direccionesCorreos = null;
+		
 		List<String> numerosDeTelefono = null;
 		
 		if (request.getParameter("correos") != null) {
@@ -123,11 +127,34 @@ public class AltaController extends HttpServlet {
 				.salario(salario)
 				.departamentos_id(departamentos_id)
 				.build();
+		
+		// Aquí se llama al servicio para que se encargue de la lógica de negocio y de la interacción con la base de datos.
+		// El servicio se encargará de llamar al método del DAO que inserta el empleado en la base de datos,
+		// junto con sus correos y teléfonos.
+		
+		
 				
-				
+		EmpleadoService empleadoService = new EmpleadosServiceImpl();
+		
+		try {
+			empleadoService.altaEmpleado(empleado, direccionesCorreos, numerosDeTelefono);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		
+
+	
+	List<Empleado> empleados = empleadoService.getEmpleados();
+	
+	request.setAttribute("empleados", empleados);
+	
+	request.getRequestDispatcher("views/listadoEmpleados.jsp").forward(request, response);
+	
 	}
 
 }
+	
+	

@@ -4,11 +4,15 @@ package com.example.services;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.example.dao.DBConexion;
+import com.example.models.Detalle;
 import com.example.models.Empleado;
 import com.example.models.Genero;
 
@@ -88,6 +92,74 @@ public class EmpleadosServiceImpl implements EmpleadoService{
 		}
 		// TODO Auto-generated method stub
 		return empleados;
+	}
+
+	@Override
+	public void altaEmpleado(Empleado empleado, List<String> emails, List<String> nTelefonos)
+			throws SQLException, Exception {
+		
+		try (DBConexion dbConexion = new DBConexion("root", "Temp2026");
+				Connection connection = dbConexion.getConexion()){
+			dbConexion.altaEmpleado(empleado, emails, nTelefonos, connection);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Detalle detalles(int idEmpleado) {
+		
+		Detalle detalles = null;
+		
+		try (DBConexion dbConexion = new DBConexion("root",  "Temp2026");
+				Connection connection = dbConexion.getConexion()) {
+			
+			ResultSet rs = dbConexion.detallesEmpleado(idEmpleado, connection);
+			
+			// Para recuperar el nombre del departamento hay que recorrer el ResultSet
+			String nombreDpto = null;
+			
+			// Para coger solo una vez el nombres del departamento.
+			if (rs.next())
+				nombreDpto = rs.getString("nombreDpto");
+			
+			
+			// Para recuperar la lista de números de teléfono hay que recorrer el ResultSet,
+			Set<String> numerosTelefono = new HashSet<String>();
+			
+			rs.beforeFirst(); // para volver al principio del ResultSet y poder recorrerlo de nuevo.
+			
+			while (rs.next()) {
+				numerosTelefono.add(rs.getString("numeroTelefono"));
+				
+			}
+			
+			// y lo mismo para la lista de correos electrónicos.
+			Set<String> emails = new HashSet<String>();
+
+			rs.beforeFirst(); // para volver al principio del ResultSet y poder recorrerlo de nuevo.
+			
+			while (rs.next()) {
+				emails.add(rs.getString("email"));
+			}
+			
+			detalles = new Detalle(nombreDpto, numerosTelefono, emails);
+			
+			// mostrar el record detalles en la consola
+			LOG.info("Detalle recuperado: " + detalles);
+			
+		} catch (Exception e) {
+			LOG.severe("Error recuperando detalles en la capa de servicios");
+		}
+			
+		
+		
+		
+		return detalles;
 	}
 
 	
