@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -319,10 +320,10 @@ public class DBConexion implements AutoCloseable {
 				+ "            \n"
 				+ "where emp.id = ?";
 		
-		PreparedStatement stmt1 = null;
+
 		
 		try {
-			stmt1 = connection.prepareStatement(query, 
+			PreparedStatement stmt1 = connection.prepareStatement(query, 
 					ResultSet.TYPE_SCROLL_INSENSITIVE, 
 					ResultSet.CONCUR_UPDATABLE);
 			 // con esta opción le decimos que el ResultSet sea desplazable, 
@@ -336,4 +337,123 @@ public class DBConexion implements AutoCloseable {
 		
 		return rs;
 	}
+	
+	// Método para recuperar toda la info del empleado que se va a actualizar.
+	public ResultSet getEmpleadoById(int idEmpleado, Connection connection) {
+		
+		ResultSet rs = null;
+		String query = "select emp.id idEmpleado,\n"
+				+ "		emp.nombre nombreEmpleado,\n"
+				+ "		emp.primerApellido,\n"
+				+ "        emp.segundoApellido,\n"
+				+ "        emp.fechaAlta,\n"
+				+ "        emp.genero,\n"
+				+ "        emp.salario,\n"
+				+ "        emp.departamentos_id,\n"
+				+ "        dep.id idDpto,\n"
+				+ "        dep.nombre nombreDpto,\n"
+				+ "        tel.numero,\n"
+				+ "        co.email\n"
+				+ "from empleados emp left join departamentos dep on \n"
+				+ "	emp.departamentos_id = dep.id left join correos co on\n"
+				+ "		emp.id = co.empleados_id left join telefonos tel on\n"
+				+ "			emp.id = tel.empleados_id\n"
+				+ "where emp.id = ?";
+		
+		try {
+			PreparedStatement stmt1 = connection.prepareStatement(query,
+					ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_UPDATABLE);
+			stmt1.setInt(1, idEmpleado);
+			rs = stmt1.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return rs;
+		
+	}
+	
+	// Método que actualiza un empleado:
+	public void updateEmpleado(Empleado empleado, 
+			List<String> emails, 
+			List<String> telefonos,
+			Connection connection) {
+		
+		String query1 = "UPDATE `empleados` "
+				+ "SET `nombre` = ?, `primerApellido` = ?, "
+				+ "`segundoApellido` = ?, `fechaAlta` = ?, "
+				+ "`genero` = ?, `salario` = ?, `departamentos_id` = ?"
+				+ "WHERE (`id` = ?);";
+		
+		// Eliminar correos y telefonos anteriores
+		String eliminarCorreos = "delete from correos where empleados_id = ?";
+		String insertarCorreos = "INSERT INTO `correos` (`email`, `empleados_id`)"
+							+ "VALUES (?, ?)";
+		
+		String eliminarTelefonos = "delete from telefonos where empleados_id = ?";
+		String insertarTelefonos = "INSERT INTO `telefonos` (`numero`, `empleados_id`)"
+						+ "VALUES (?, ?)";
+		
+	
+		try {
+			PreparedStatement stmt1 = connection.prepareStatement(query1);
+			stmt1.setString(1, empleado.nombre());
+			stmt1.setString(2, empleado.primerApellido());
+			stmt1.setString(3, empleado.segundoApellido());
+			stmt1.setDate(4, Date.valueOf(empleado.fechaAlta()));
+			stmt1.setString(5, empleado.genero().name());
+			stmt1.setBigDecimal(6, empleado.salario());
+			stmt1.setInt(7, empleado.departamentos_id());
+			stmt1.setInt(8, empleado.id());
+			stmt1.executeUpdate();
+
+			// Eliminar los correos y los telefonos para el empleado 
+			// e insertar los nuevos recibidos
+			
+			PreparedStatement stmtEliminarTelefonos = connection
+					.prepareStatement(eliminarTelefonos);
+			stmtEliminarTelefonos.setInt(1, empleado.id());
+			stmtEliminarTelefonos.executeUpdate();
+			
+			PreparedStatement stmtInsertarTelefonos = connection
+					.prepareStatement(insertarTelefonos);
+			stmtInsertarTelefonos.setInt(2, empleado.id());
+			// stmtInsertarTelefonos.executeUpdate();
+			
+			for (String numero : telefonos) {
+				stmtInsertarTelefonos.setString(1, numero);
+				stmtInsertarTelefonos.addBatch();
+				
+			}
+			
+			stmtInsertarTelefonos.executeBatch();
+			
+			PreparedStatement stmtEliminarCorreos = connection
+					.prepareStatement(eliminarCorreos);
+			stmtEliminarCorreos.setInt(1, empleado.id());
+			stmtEliminarCorreos.executeUpdate();
+			
+			PreparedStatement stmtInsertarCorreos = connection
+					.prepareStatement(insertarCorreos);
+			stmtInsertarCorreos.setInt(2, empleado.id());
+			// stmtInsertarTelefonos.executeUpdate();
+			
+			for (String email : emails) {
+				stmtInsertarCorreos.setString(1, email);
+				stmtInsertarCorreos.addBatch();
+				
+			}
+			
+			stmtInsertarTelefonos.executeBatch();
+
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+	
+	}
+	
+	
 }

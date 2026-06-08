@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.models.Detalle;
 import com.example.models.Empleado;
+import com.example.models.EmpleadoUpdate;
 
 public interface EmpleadoService {
 	// método para comprobar la conexión a la base de datos.
@@ -16,5 +17,13 @@ public interface EmpleadoService {
 			List<String> nTelefonos) throws SQLException, Exception;
 	// Necesitamos método que nos de los detalles del empleado.
 	Detalle detalles(int idEmpleado);
+	
+	// record que recupera toda la info del empleado.
+	EmpleadoUpdate getEmpleadoById(int idEmpleado);
+	
+	// Método que no devuelve nada 
+	void updateEmpleado(Empleado empleado, 
+			List<String> emails,
+			List<String> telefonos);
 
 }

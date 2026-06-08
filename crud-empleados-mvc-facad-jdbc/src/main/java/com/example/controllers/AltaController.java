@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -28,133 +29,135 @@ import com.example.services.EmpleadosServiceImpl;
 public class AltaController extends HttpServlet {
 	private static final Logger LOG = Logger.getLogger("AltaController");
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public AltaController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	public AltaController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
 		DepartamentoService departamentoService = new DepartamentoServiceImpl();
-		
+
 		List<Departamento> departamentos = null;
-		
+
 		try {
 			departamentos = departamentoService.getDepartamentos();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		request.setAttribute("departamentos",  departamentos);
-		
+
+		request.setAttribute("departamentos", departamentos);
+
 		request.getRequestDispatcher("views/formularioAltaModificacion.jsp").forward(request, response);
-	// recogemos el formulario de alta y lo guardamos en la base de datos.
-	
+		// recogemos el formulario de alta y lo guardamos en la base de datos.
+
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// aquí se recogen los datos procedentes de los campos del formulario.
 		// Toda la información se recoge en formato String (text)
-		
+
+		int idEmpleado = Integer.parseInt(request.getParameter("idEmpleado"));
 		String nombre = request.getParameter("nombre");
 		String primerApellido = request.getParameter("primerApellido");
-		String segundoApellido = request.getParameter("segundoApellido") == null 
-				? "" : request.getParameter("segundoApellido");
+		String segundoApellido = request.getParameter("segundoApellido") == null ? ""
+				: request.getParameter("segundoApellido");
 		LocalDate fechaAlta = LocalDate.parse(request.getParameter("fechaAlta"));
 		Genero genero = Genero.valueOf(request.getParameter("genero"));
 		BigDecimal salario = BigDecimal.valueOf(Double.valueOf(request.getParameter("salario")));
-		
+
 		int departamentos_id = Integer.parseInt(request.getParameter("departamento"));
-		
+
 		// Hay que tener en cuenta que correos y teléfonos no son requeridos.
-		
+
 		List<String> direccionesCorreos = null;
-		
+
 		List<String> numerosDeTelefono = null;
-		
+
 		if (request.getParameter("correos") != null) {
-		
+
 			String direccionesCorreoRecibidas = request.getParameter("correos");
 			String[] arrayDirCorreosRecibidos = direccionesCorreoRecibidas.split(";");
-			
+
 			direccionesCorreos = Arrays.asList(arrayDirCorreosRecibidos);
-			
+
 			// Comprobando
 			System.out.println("Direcciones de correos recibidas");
 			direccionesCorreos.forEach(System.out::println);
-		
+
 		}
-		
+
 		if (request.getParameter("telefonos") != null) {
-			
+
 			String numerosTelefonoRecibidos = request.getParameter("telefonos");
 			String[] arrayNumTelRecibidos = numerosTelefonoRecibidos.split(";");
-			
+
 			numerosDeTelefono = Arrays.asList(arrayNumTelRecibidos);
-			
+
 			// Comprobando
 			System.out.println("Números de teléfono recibidas");
 			numerosDeTelefono.forEach(System.out::println);
-		
+
 		}
-		
-		
-		
-		
-		// Comprobamos el flujo con un LOG a ver si recibimos la información adecuada procedente del formulario.
+
+		// Comprobamos el flujo con un LOG a ver si recibimos la información adecuada
+		// procedente del formulario.
 		// LOG.info("Nombre recibido: " + nombre);
 		// LOG.info("Segundo Apellido: " + segundoApellido);
-		
-		// Crear el objeto empleado
-		
-		Empleado empleado = Empleado.builder()
-				.nombre(nombre)
-				.primerApellido(primerApellido)
-				.segundoApellido(segundoApellido)
-				.fechaAlta(fechaAlta)
-				.genero(genero)
-				.salario(salario)
-				.departamentos_id(departamentos_id)
-				.build();
-		
-		// Aquí se llama al servicio para que se encargue de la lógica de negocio y de la interacción con la base de datos.
-		// El servicio se encargará de llamar al método del DAO que inserta el empleado en la base de datos,
-		// junto con sus correos y teléfonos.
-		
-		
-				
-		EmpleadoService empleadoService = new EmpleadosServiceImpl();
-		
-		try {
-			empleadoService.altaEmpleado(empleado, direccionesCorreos, numerosDeTelefono);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
 
-	
-	List<Empleado> empleados = empleadoService.getEmpleados();
-	
-	request.setAttribute("empleados", empleados);
-	
-	request.getRequestDispatcher("views/listadoEmpleados.jsp").forward(request, response);
-	
+		// Crear el objeto empleado
+
+		Empleado empleado = Empleado.builder().id(idEmpleado).nombre(nombre).primerApellido(primerApellido)
+				.segundoApellido(segundoApellido).fechaAlta(fechaAlta).genero(genero).salario(salario)
+				.departamentos_id(departamentos_id).build();
+
+		// Aquí se llama al servicio para que se encargue de la lógica de negocio y de
+		// la interacción con la base de datos.
+		// El servicio se encargará de llamar al método del DAO que inserta el empleado
+		// en la base de datos,
+		// junto con sus correos y teléfonos.
+
+		EmpleadoService empleadoService = new EmpleadosServiceImpl();
+
+		// En dependencia del id del empleado será un alta para id del empleado = 0 o
+		// una modificación si el
+		// id es diferente de 0.
+
+		if (idEmpleado == 0) {
+			// Alta nueva
+			try {
+				empleadoService.altaEmpleado(empleado, direccionesCorreos, numerosDeTelefono);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			// Modificación empleado existente
+			empleadoService.updateEmpleado(empleado, direccionesCorreos, numerosDeTelefono);
+
+		}
+
+		List<Empleado> empleados = empleadoService.getEmpleados();
+
+		request.setAttribute("empleados", empleados);
+
+		request.getRequestDispatcher("views/listadoEmpleados.jsp").forward(request, response);
+
 	}
 
 }
-	
-	
